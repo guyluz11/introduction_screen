@@ -3,10 +3,9 @@ library introduction_screen;
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-
 import 'package:collection/collection.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 import '/src/helper.dart';
@@ -399,9 +398,9 @@ class IntroductionScreen extends StatefulWidget {
 
 class IntroductionScreenState extends State<IntroductionScreen> {
   late PageController _pageController;
-  double _currentPage = 0.0;
+  double currentPage = 0.0;
   bool _isSkipPressed = false;
-  bool _isScrolling = false;
+  bool isScrolling = false;
   late bool _showBottom;
   StreamSubscription<bool>? keyboardSubscription;
 
@@ -413,7 +412,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
     final int initialPage = min(widget.initialPage, getPagesLength() - 1);
     _pageController = PageController(initialPage: initialPage);
     _showBottom = widget.showBottomPart;
-    _currentPage = initialPage.toDouble();
+    currentPage = initialPage.toDouble();
     _autoScroll(widget.autoScrollDuration);
     if (widget.hideBottomOnKeyboard) {
       final keyboardVisibilityController = KeyboardVisibilityController();
@@ -443,7 +442,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
     return (widget.pages ?? widget.rawPages!).length;
   }
 
-  int getCurrentPage() => _currentPage.round();
+  int getCurrentPage() => currentPage.round();
 
   Future<void> _autoScroll(int? _durationInt) async {
     if (_durationInt != null) {
@@ -478,7 +477,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
     bool forward,
   ) async {
     await Future.delayed(autoscrollDuration);
-    if (mounted && !_isSkipPressed && !_isScrolling) {
+    if (mounted && !_isSkipPressed && !isScrolling) {
       if (forward) {
         await _pageController.nextPage(
           duration: animationDuration,
@@ -523,14 +522,14 @@ class IntroductionScreenState extends State<IntroductionScreen> {
   Future<void> animateScroll(int page) async {
     bool isValidToProgress = widget.canProgress(getCurrentPage());
     if (isValidToProgress) {
-      _isScrolling = true;
+      isScrolling = true;
       await _pageController.animateToPage(
         max(min(page, getPagesLength() - 1), 0),
         duration: Duration(milliseconds: widget.animationDuration),
         curve: widget.curve,
       );
       if (mounted) {
-        _isScrolling = false;
+        isScrolling = false;
       }
     }
   }
@@ -539,7 +538,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
     final metrics = notification.metrics;
     if (metrics is PageMetrics && metrics.page != null) {
       if (mounted) {
-        setState(() => _currentPage = metrics.page!);
+        setState(() => currentPage = metrics.page!);
       }
     }
     return false;
@@ -576,7 +575,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
             style: widget.baseBtnStyle?.merge(widget.backStyle) ??
                 widget.backStyle,
             semanticLabel: widget.backSemantic,
-            onPressed: !_isScrolling ? previous : null,
+            onPressed: !isScrolling ? previous : null,
           );
     }
 
@@ -588,7 +587,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
             style: widget.baseBtnStyle?.merge(widget.doneStyle) ??
                 widget.doneStyle,
             semanticLabel: widget.doneSemantic,
-            onPressed: !_isScrolling ? widget.onDone : null,
+            onPressed: !isScrolling ? widget.onDone : null,
           );
     } else if (!isLastPage &&
         widget.showNextButton &&
@@ -599,7 +598,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
             style: widget.baseBtnStyle?.merge(widget.nextStyle) ??
                 widget.nextStyle,
             semanticLabel: widget.nextSemantic,
-            onPressed: !_isScrolling ? next : null,
+            onPressed: !isScrolling ? next : null,
           );
     }
 
@@ -687,7 +686,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
                                         child: DotsIndicator(
                                           reversed: widget.rtl,
                                           dotsCount: getPagesLength(),
-                                          position: _currentPage.toDouble(),
+                                          position: currentPage.toDouble(),
                                           decorator: widget.dotsDecorator,
                                           onTap: widget.isProgressTap &&
                                                   !widget.freeze
